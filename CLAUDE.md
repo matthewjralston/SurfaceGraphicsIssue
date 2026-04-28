@@ -5,7 +5,7 @@
 - External monitor connection: switched from USB-C→HDMI to USB-C→DisplayPort cable on 2026-04-26
 - Current driver: `32.0.101.8735` (dated April 20, 2026) — latest available as of 2026-04-26
 - Previous driver `32.0.101.8629` regressed; 8735 installed 2026-04-25 and resolved the issue
-- 8735 is NOT a complete fix — issue recurs after every sleep/wake cycle (see Sleep/Wake Bug below)
+- 8735 is NOT a complete fix — issue recurs after every sleep/wake cycle AND after hibernate (see Sleep/Wake Bug below)
 
 ## The Problem
 Chrome and Microsoft Teams both show black screens / broken UI. Both are Chromium-based (Teams uses msedgewebview2), so this is one root cause: Intel Arc driver breaking GPU hardware acceleration in Chromium rendering.
@@ -18,7 +18,8 @@ Audio crackles when Chrome opens — indicates a GPU context reset is happening 
 - Issue returned 2026-04-25 — regression on driver `32.0.101.8629`
 - Driver `32.0.101.8735` installed 2026-04-25, resolved the issue
 - Issue returned again 2026-04-26 — triggered by sleep/wake cycle (machine slept at 1:46 AM, issue present on resume)
-- 2026-04-26: switched external monitor cable from USB-C→HDMI to USB-C→DisplayPort; rebooted from failed state to test — outcome TBD
+- 2026-04-26: switched external monitor cable from USB-C→HDMI to USB-C→DisplayPort; rebooted from failed state to test
+- 2026-04-28: issue recurred after hibernate resume (slept 3:07 AM UTC, woke 8:28 AM via Surface Button) — USB-C→DisplayPort cable confirmed NOT the cause; cable swap ruled out
 
 ## Previous Actions
 - Had a Claude session about this issue (conversation not saved to memory)
@@ -30,7 +31,7 @@ Audio crackles when Chrome opens — indicates a GPU context reset is happening 
 - Driver `32.0.101.8629` regressed that fix
 - Driver `32.0.101.8735` restored it, but only until the next sleep/wake cycle
 
-## Sleep/Wake Bug (confirmed 2026-04-26)
+## Sleep/Wake + Hibernate Bug (confirmed 2026-04-26, hibernate confirmed 2026-04-28)
 Intel Arc driver fails to properly reinitialize Chromium GPU contexts after sleep/resume. DWM (desktop rendering) recovers fine; Chrome and Teams (both Chromium-based) do not — their GPU process ends up with a dead D3D context, producing full black screens.
 
 **Diagnosis confirmed via:**
@@ -49,8 +50,8 @@ Intel Arc driver fails to properly reinitialize Chromium GPU contexts after slee
 **Proper fix:** Full shutdown + cold boot (not sleep/resume) — forces complete driver reinit, clears stuck GPU context
 
 **Recurring prevention options:**
-- Disable sleep, use hibernate instead (hibernate does full state dump/restore, properly reinits driver)
-- Or reboot instead of sleeping until Intel patches this
+- ~~Disable sleep, use hibernate instead~~ — **WRONG: hibernate resume also triggers the bug (confirmed 2026-04-28)**
+- Reboot instead of sleeping/hibernating until Intel patches this — only reliable prevention
 
 **GPU disable/re-enable** (would reinit driver without reboot) requires elevated pnputil — access denied in normal session
 
