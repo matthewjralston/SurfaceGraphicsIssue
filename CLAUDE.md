@@ -47,6 +47,8 @@ Intel Arc driver fails to properly reinitialize Chromium GPU contexts after slee
 ```
 *(Launched on 2026-04-26 before reboot but result unconfirmed — machine rebooted while in failed state)*
 
+**Faster workaround (confirmed 2026-04-28):** Sign out of Windows and sign back in — restarts the desktop session and reinitializes the GPU context without a full reboot. Faster than rebooting.
+
 **Proper fix:** Full shutdown + cold boot (not sleep/resume) — forces complete driver reinit, clears stuck GPU context
 
 **Recurring prevention options:**
